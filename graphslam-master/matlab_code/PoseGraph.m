@@ -56,16 +56,17 @@ classdef PoseGraph < handle
                 id_from   = ei(1) + 1;
                 id_to     = ei(2) + 1;
                 mean      = ei(3:5);
+                % Information Matrix 應該是自行假設Covariance的值。
                 infm      = zeros(3,3);
-                infm(1,1) = ei(6,:);
-                infm(2,1) = ei(7,:);
-                infm(1,2) = ei(7,:);
-                infm(2,2) = ei(8,:);
-                infm(3,3) = ei(9,:);
-                infm(1,3) = ei(10,:);
-                infm(3,1) = ei(10,:);
-                infm(3,2) = ei(11,:);
-                infm(2,3) = ei(11,:);
+                infm(1,1) = ei(6,:); % 預設 20
+                infm(2,1) = ei(7,:); % 預設  0
+                infm(1,2) = ei(7,:); % 預設  0
+                infm(2,2) = ei(8,:); % 預設 20
+                infm(3,3) = ei(9,:); % 預設 1000000
+                infm(1,3) = ei(10,:);% 預設  0
+                infm(3,1) = ei(10,:);% 預設  0
+                infm(3,2) = ei(11,:);% 預設  0
+                infm(2,3) = ei(11,:);% 預設  0
                 % obj.edge是邊集合，每一個子集含有id_from, id_to, mean, infm資訊。
                 obj.edge(i_edge) = PoseEdge(id_from, id_to, mean, infm);
             end
