@@ -1,10 +1,11 @@
 import numpy as np
+import csv
 
 class PoseGraph():
 
     def __init__(self):
         
-        '''
+        '''(Done)
         To impelement this graph slam optimizer, please follow the steps below:
         1. Use the "add_zero_constructor" function with input: 
             - node_data_set : 5xn array
@@ -13,23 +14,17 @@ class PoseGraph():
         2. Use the "optimize" function with input:
             - num_iteration : Max iteration times, default = 10
 
-        3. After the iteration, the optimal solution is recorded in "self.node"
-        '''
-
-        '''
+        3. After the iteration, the result is recorded in "self.node".
+        -----------------------------------------------------------------------
         Parameter:
-        * Node : Pose nodes in graph
-        * Edge : Edge in graph
-        * H    : Information matrix
-        * b    : Information vector
-
-        * n_node : Number of nodes in graph     
-        * n_edge : Number of edges in graph
-        * pose   : Poses of all nodes
-        
+            * node : Pose nodes in graph
+            * edge : Edge in graph
+            * H    : Information matrix
+            * b    : Information vector
         '''
         pass
-
+        return
+        
 
     def add_zero_constructor(self, node_set, edge_set):
 
@@ -71,7 +66,7 @@ class PoseGraph():
               [2]:   y (list)
               [3]: yaw (list)
 
-        edge_set: array of edge data :11:N
+        edge_set: array of edge data :11xN
               [0]: id_from (list)
               [1]:   id_to (list)
             [2~4]:    mean (list)
@@ -104,7 +99,9 @@ class PoseGraph():
                 [ edge_set[6,i], edge_set[7,i],  edge_set[10,i] ],
                 [ edge_set[9,i], edge_set[10,i], edge_set[8,i]  ]
             ])
-    
+
+        return
+
     def optimize(self, num_iteration=10):
 
         '''(Done)
@@ -115,6 +112,7 @@ class PoseGraph():
             print("No. %d iteration of optimization ..." %(i+1))
             self.iterate_graph_slam()
 
+        return  
 
     def iterate_graph_slam(self):
         
@@ -137,6 +135,8 @@ class PoseGraph():
         print("Solve the linear system...")
         self.solve_lin_sys()
             
+        return
+        
     def linearize_err_fcn(self):
         
         '''(Done)
@@ -214,6 +214,7 @@ class PoseGraph():
             self.b[i_ind_start : i_ind_end] = self.b[i_ind_start : i_ind_end] + b_i
             self.b[j_ind_start : j_ind_end] = self.b[j_ind_start : j_ind_end] + b_j
 
+        return
 
     def solve_lin_sys(self):
         
@@ -232,7 +233,7 @@ class PoseGraph():
         for i in range(len(self.node)):
             self.node[1:4,i] = self.node[1:4,i] + dpose[1:4,i]
         
-        
+        return
 
     def v2t(self, vector):
         
@@ -274,57 +275,75 @@ class PoseGraph():
 
 
 
-
-
-
-class PoseNode():
+def read_graph_csv(csv_file_node='node.csv', csv_file_edge='edge.csv'):
     
-    def __init__(self, x, y, yaw, rt):
-        '''
-        
-        id    : Id of this pose node
-        pose  : Pose of this pose node
-        
-        x    : X coordinate
-        y    : Y coordinate
-        yaw  : Yaw angle
-        rt   : Transformation local to global
-        '''
-        self.x   = x
-        self.y   = y
-        self.yaw = yaw
-        self.rt  = rt
+    '''(Done)
+    Read the graph slam data set from the csv file.
+    '''
+    with open(csv_file_node) as node:
+        node_csv = csv.reader(node)
+        node_list = []
+        for row in node_csv:
+            node_list.append(row)
+        node_set = np.array(node_list)
 
-    def get_info(self, id, pose):
-        '''
-        資料還需做處理。
-        '''
-        
-        self.id   = id
-        self.pose = pose
-        return
-
-
-
-
-class PoseEdge():
+    with open(csv_file_edge) as edge:
+        edge_csv = csv.reader(edge)
+        edge_list = []
+        for row in edge_csv:
+            edge_list.append(row)
+        edge_set = np.array(edge_list)
     
-    def __init__(self):
-        '''
-        id_from  : This is the viewing frame of this edge
-        id_to    : This is the pose being observed from the viewing frame
-        mean     : Predicted virtual measurement
-        infm     : Information matrix of this edge
-        '''
-        pass
+    return node_set, edge_set
 
-    def add_info(self, id_from, id_to, mean, infm):
-        '''
-        資料還需做處理。
-        '''
-        self.id_from = id_from
-        self.id_to   = id_to
-        self.mean    = mean
-        self.infm    = infm
+# class PoseNode():
+    
+#     def __init__(self, x, y, yaw, rt):
+#         '''
+        
+#         id    : Id of this pose node
+#         pose  : Pose of this pose node
+        
+#         x    : X coordinate
+#         y    : Y coordinate
+#         yaw  : Yaw angle
+#         rt   : Transformation local to global
+#         '''
+#         self.x   = x
+#         self.y   = y
+#         self.yaw = yaw
+#         self.rt  = rt
 
-        return
+#     def get_info(self, id, pose):
+#         '''
+#         資料還需做處理。
+#         '''
+        
+#         self.id   = id
+#         self.pose = pose
+#         return
+
+
+
+
+# class PoseEdge():
+    
+#     def __init__(self):
+#         '''
+#         id_from  : This is the viewing frame of this edge
+#         id_to    : This is the pose being observed from the viewing frame
+#         mean     : Predicted virtual measurement
+#         infm     : Information matrix of this edge
+#         '''
+#         pass
+
+#     def add_info(self, id_from, id_to, mean, infm):
+#         '''
+#         資料還需做處理。
+#         '''
+#         self.id_from = id_from
+#         self.id_to   = id_to
+#         self.mean    = mean
+#         self.infm    = infm
+
+#         return
