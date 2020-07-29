@@ -19,12 +19,26 @@ T = np.array([
 
 R = T[0:2 , 0:2]
 print(R)
-print( R.dot(R).dot(R) )
-def id2ind(id):
-    '''(Done)
-    Converts id to indices in H and b
-    '''
-    return ,
 
-x= id2ind(5)
-print(x)
+x = range(9)
+y = np.reshape(x,(3,3))
+d = np.array([
+    [5,4,6],
+    [0,1,2],
+    [-1,1,1]
+])
+print(y)
+for i in range(len(y)):
+    y[1:3, i] = y[1:3, i] + d[1:3, i]
+    print(y)
+
+def optimize(num_iteration=10):
+
+    '''(Done)
+    Implement optimization to find a best solution for the graph.
+    Optimization will stop when maximal iteration is reached.
+    '''
+    for i in range(num_iteration):
+        print("No. %d iteration of optimization ..." %(i+1))
+optimize()
+# print(h)

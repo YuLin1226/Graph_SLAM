@@ -3,6 +3,18 @@ import numpy as np
 class PoseGraph():
 
     def __init__(self):
+        
+        '''
+        To impelement this graph slam optimizer, please follow the steps below:
+        1. Use the "add_zero_constructor" function with input: 
+            - node_data_set : 5xn array
+            - edge_data_set : 4xn array
+
+        2. Use the "optimize" function with input:
+            - num_iteration : Max iteration times, default = 10
+
+        3. After the iteration, the optimal solution is recorded in "self.node"
+        '''
 
         '''
         Parameter:
@@ -19,7 +31,7 @@ class PoseGraph():
         pass
 
 
-    def add_zero_constructor(self, node, edge):
+    def add_zero_constructor(self, node_set, edge_set):
 
         '''(Done)
         Create zeros constructor of node and edge.
@@ -42,8 +54,10 @@ class PoseGraph():
                infm |     | >> covariance information  : 3x3 array : float
         ]
         '''
-        self.node = np.zeros(np.shape(node))
-        self.edge = np.zeros(np.shape(edge))
+        self.node = np.zeros(np.shape(node_set))
+        self.edge = np.zeros(np.shape(edge_set))
+
+        self.read_data(node_set, edge_set)
         return
 
     def read_data(self, node_set, edge_set):
@@ -91,20 +105,20 @@ class PoseGraph():
                 [ edge_set[9,i], edge_set[10,i], edge_set[8,i]  ]
             ])
     
-    def optimize(self, num_iteration):
+    def optimize(self, num_iteration=10):
 
         '''(Done)
         Implement optimization to find a best solution for the graph.
         Optimization will stop when maximal iteration is reached.
         '''
-        for i in num_iteration:
+        for i in range(num_iteration):
             print("No. %d iteration of optimization ..." %(i+1))
             self.iterate_graph_slam()
 
 
     def iterate_graph_slam(self):
         
-        '''
+        '''(Done)
         Iteration of pose graph optimization
         Details of the matrice below refer to paper "A Tutorial on Graph-Based SLAM."
         H : 3n x 3n matrix
@@ -112,10 +126,8 @@ class PoseGraph():
         '''
 
         print("Iteration...")
-        # Create new H and b matrices each time
-        # obj.H = zeros(obj.n_node*3);   % 3n x 3n square matrix
-        # obj.b = zeros(obj.n_node*3,1); % 3n x 1  column vector
         
+        # Create zero constructors of H and b 
         self.H = np.zeros( (len(self.node), len(self.node)) )
         self.b = np.zeros( (len(self.node),1) )
 
@@ -127,7 +139,7 @@ class PoseGraph():
             
     def linearize_err_fcn(self):
         
-        '''
+        '''(Done)
         Linearize error functions and formulate a linear system
         '''
         
@@ -204,8 +216,23 @@ class PoseGraph():
 
 
     def solve_lin_sys(self):
-        pass
-
+        
+        '''(Done)
+        Solves the linear system and update all pose node.
+        The system Hx = b is obtained only from relative constraints.
+        H is not full rank.
+        We solve this by anchoring the position of the 1st vertex
+        This can be expressed by adding the equation
+        dx(1:3,1) = 0
+        which is equivalent to the following
+        '''
+        self.H[0:3, 0:3] = self.H[0:3, 0:3] + np.eye(3)
+        dx = np.linalg.inv(self.H).dot(self.b)
+        dpose = np.reshape(dx, (3, len(self.node)))
+        for i in range(len(self.node)):
+            self.node[1:4,i] = self.node[1:4,i] + dpose[1:4,i]
+        
+        
 
     def v2t(self, vector):
         
