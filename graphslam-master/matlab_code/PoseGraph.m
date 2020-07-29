@@ -183,7 +183,9 @@ classdef PoseGraph < handle
         end
         
         function n_node = get.n_node(obj)
+            size(obj.node)
             n_node = numel(obj.node);
+        
         end
         
         function n_edge = get.n_edge(obj)
