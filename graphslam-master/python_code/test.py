@@ -1,6 +1,8 @@
 import numpy as np
 import csv
 from math import atan2, sin, cos
+from scipy import sparse
+from scipy.sparse.linalg import inv
 
 def t2v(T):
     
@@ -41,11 +43,16 @@ a = np.array([
     [1, 1, 1,7,7],
     [9, 8, 7,8,8]
 ])
-b = np.eye(2)
-a[0:2,0:2] = a[0:2,0:2] + b
+b = np.array([
+    [5,2,0],
+    [1,0,0],
+    [7,0,9]
+])
+c = sparse.csc_matrix(b)
+# a[0:2,0:2] = a[0:2,0:2] + b
 # v = t2v(a)
 # print(np.linalg.inv(a).dot(v))
-print(len(a)-1 )
+print(inv(c).dot(np.array([[1],[2],[3]])))
 
 
 

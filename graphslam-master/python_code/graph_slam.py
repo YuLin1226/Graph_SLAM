@@ -387,3 +387,4 @@ if __name__ == "__main__":
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
     a.optimize()
+    print(np.shape(a.node))
