@@ -50,8 +50,14 @@ class PoseGraph():
                infm |     | >> covariance information  : 3x3 array : float
         ]
         '''
-        self.node = np.zeros(np.shape(node_set))
-        self.edge = np.zeros(np.shape(edge_set))
+
+        _ , self.length_node = np.shape(node_set)
+        _ , self.length_edge = np.shape(edge_set)
+        
+        self.node = []
+        self.edge = []
+        # self.node = np.zeros(np.shape(node_set))
+        # self.edge = np.zeros(np.shape(edge_set))
 
         self.read_data(node_set, edge_set)
         return
@@ -74,10 +80,15 @@ class PoseGraph():
            [5~10]:    infm (list)
         '''
         # put in node data.
-        self.node[0,:] = node_set[0,:]
-        self.node[1,:] = node_set[1,:]
-        self.node[2,:] = node_set[2,:]
-        self.node[3,:] = node_set[3,:]
+
+        for i_node in range(np.size(node_set, 1)):
+            self.node.append([
+                int(node_set[0, i_node]),
+                float(node_set[1, i_node]),
+                float(node_set[2, i_node]),
+                float(node_set[3, i_node])
+            ])
+
 
         # -- The element of node[4,:] seems not being used.
         # for i in range(np.size(node_set,1)):
@@ -88,23 +99,21 @@ class PoseGraph():
         #     ]) 
 
         # put in edge data
-        self.edge[0,:] = edge_set[0,:]
-        self.edge[1,:] = edge_set[1,:]
-
-        for i in range(np.size(edge_set,1)):
-            self.edge[2,i] = np.array([
-                edge_set[2,i], edge_set[3,i], edge_set[4,i]
-            ])
-        
-            self.edge[3,i] = np.array([
-                [ edge_set[5,i], edge_set[6,i],  edge_set[9,i]  ],
-                [ edge_set[6,i], edge_set[7,i],  edge_set[10,i] ],
-                [ edge_set[9,i], edge_set[10,i], edge_set[8,i]  ]
+        for i_edge in range(np.size(edge_set, 1)):
+            self.edge.append([
+                int(edge_set[0, i_edge]),
+                int(edge_set[1, i_edge]),
+                np.array([ edge_set[2,i_edge], edge_set[3,i_edge], edge_set[4,i_edge] ], dtype=np.float),
+                np.array([
+                [ edge_set[5,i_edge], edge_set[6,i_edge],  edge_set[9,i_edge]  ],
+                [ edge_set[6,i_edge], edge_set[7,i_edge],  edge_set[10,i_edge] ],
+                [ edge_set[9,i_edge], edge_set[10,i_edge], edge_set[8,i_edge]  ]
+                        ], dtype=np.float)
             ])
 
         return
 
-    def optimize(self, num_iteration=10):
+    def optimize(self, num_iteration=1):
 
         '''(Done)
         Implement optimization to find a best solution for the graph.
@@ -128,8 +137,8 @@ class PoseGraph():
         print("Iteration...")
         
         # Create zero constructors of H and b 
-        self.H = np.zeros( (np.size(self.node, 1), np.size(self.node, 1)) )
-        self.b = np.zeros( (np.size(self.node, 1), 1) )
+        self.H = np.zeros( (3*self.length_node  , 3*self.length_node) )
+        self.b = np.zeros( (3*self.length_node  , 1) )
 
         print("Linearization...")
         self.linearize_err_fcn()
@@ -145,9 +154,9 @@ class PoseGraph():
         Linearize error functions and formulate a linear system
         '''
         
-        for i_edge in range( np.size(self.edge,1) ):
+        for i_edge in range( self.length_edge ):
             # No. i constraint
-            ei = self.edge[:, i_edge]
+            ei = self.edge[i_edge]
 
             # i_node: id_from
             # j_node: id_to
@@ -163,11 +172,16 @@ class PoseGraph():
             # v_i: pose of node i : x, y, yaw
             # v_j: pose of node j : x, y, yaw
             v_i = np.array([
-                self.node[0, i_node], self.node[1, i_node], self.node[2, i_node]
+                [self.node[i_node][0]],
+                [self.node[i_node][1]],
+                [self.node[i_node][2]] 
             ])
             v_j = np.array([
-                self.node[0, j_node], self.node[1, j_node], self.node[2, j_node]
+                [self.node[j_node][0]],
+                [self.node[j_node][1]],
+                [self.node[j_node][2]]
             ])
+            
 
             # Construct transformation from node to global frame
             T_i = self.v2t(v_i)
@@ -186,16 +200,23 @@ class PoseGraph():
             dt_ij = v_j[0:2] - v_i[0:2]
 
             # Calculation of Jacobians
-            A = np.hstack( np.dot(-R_z.transpose(), R_i.transpose()) , np.dot(np.dot(R_z.transpose(), dR_i), dt_ij) )
-            A = np.vstack(A, np.array([0,0,-1]))
+            # A: 3x3
+            # B: 3x3
+            A = np.hstack([ np.dot( -R_z.transpose(), R_i.transpose() ) , np.dot( np.dot( R_z.transpose(), dR_i ), dt_ij ) ])
+            A = np.vstack([ A, np.array([0,0,-1]) ])
 
-            B = np.hstack(np.dot(R_z.transpose(), R_i.transpose()), np.array([[0],[0]]))
-            B = np.vstack(B, np.array([0,0,1]))
+            B = np.hstack([ np.dot( R_z.transpose(), R_i.transpose() ), np.array([[0],[0]]) ])
+            B = np.vstack([ B, np.array([0,0,1]) ])
 
             # Calculation of error vector
             e = self.t2v( np.linalg.inv(T_z).dot( np.linalg.inv(T_i) ).dot(T_j) )
             
             # Formulation of updated data of H & b
+            # H_ii: 3x3  | H_ij: 3x3
+            # -----------|------------
+            # H_ji: 3x3  | H_jj: 3x3
+            # b_i:  3x1
+            # b_j:  3x1
             H_ii =  A.transpose().dot(omega).dot(A)
             H_ij =  A.transpose().dot(omega).dot(B)
             H_ji =  H_ij.transpose()
@@ -206,7 +227,10 @@ class PoseGraph():
             # Index of updated data 
             i_ind_start, i_ind_end = self.id2ind(i_node)
             j_ind_start, j_ind_end = self.id2ind(j_node)
-
+            # print("---------------------")
+            # print(i_ind_start, i_ind_end)
+            # print(j_ind_start, j_ind_end)
+            # print("---------------------")
             # Update H and b matrix
             self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] = self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] + H_ii
             self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] = self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] + H_ij
@@ -231,9 +255,11 @@ class PoseGraph():
         '''
         self.H[0:3, 0:3] = self.H[0:3, 0:3] + np.eye(3)
         dx = np.linalg.inv(self.H).dot(self.b)
-        dpose = np.reshape(dx, (3, len(self.node)))
-        for i in range(np.size(self.node, 1)):
-            self.node[1:4,i] = self.node[1:4,i] + dpose[1:4,i]
+        dpose = np.reshape(dx, (3, self.length_node))
+        for i_node in range(self.length_node):
+            for n in range(len(dpose)):
+                self.node[i_node][n+1] = self.node[i_node][n+1] + dpose[n, i_node]
+
         
         return
 
@@ -250,10 +276,12 @@ class PoseGraph():
         '''
         c = cos(vector[2])
         s = sin(vector[2])
+        x = float(vector[0])
+        y = float(vector[1])
         T = np.array([
-            [c,  -s,  vector[0]],
-            [s,   c,  vector[1]],
-            [0,   0,          1]
+            [c,  -s,  x],
+            [s,   c,  y],
+            [0,   0,  1]
         ])
         return T
 
@@ -262,8 +290,11 @@ class PoseGraph():
         '''(Done)
         Converts id to indices in H and b
         '''
-        ind_start = 3*id - 3
-        ind_end   = 3*id
+        # ind_start = 3*id - 2
+        # ind_end   = 3*id + 1
+        
+        ind_start = 3*id
+        ind_end   = 3*id + 3
         return ind_start, ind_end
 
     def t2v(self, T):
@@ -271,8 +302,9 @@ class PoseGraph():
         '''(Done)
         homogeneous transformation to vector
         '''
-        v[0:1, 0] = T[0:1, 2]
-        v[2, 0] = atan2(A[1,0], A[0,0])
+        v = np.zeros((3,1))
+        v[0:2, 0] = T[0:2, 2]
+        v[2, 0] = atan2(T[1,0], T[0,0])
         return v
 
 
