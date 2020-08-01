@@ -37,32 +37,16 @@ def v2t(vector):
     ])
     return T
 
+a = []
 
-a = np.array([
-    [1, 2, 3,9,8],
-    [1, 1, 1,7,7],
-    [9, 8, 7,8,8]
-])
-b = np.array([
-    [5,2,0],
-    [1,0,0],
-    [7,0,9]
-])
-c = sparse.csc_matrix(b)
-# a[0:2,0:2] = a[0:2,0:2] + b
-# v = t2v(a)
-# print(np.linalg.inv(a).dot(v))
-print(inv(c).dot(np.array([[1],[2],[3]])))
+for i in range(5):
+    a.append([
+                int(i),
+                float(i+1),
+                float(i+2),
+                float(i+3)
+            ])
 
-
-
-
-# with open('edge.csv') as f:
-#     myCsv = csv.reader(f)
-#     data = []
-#     for row in myCsv:
-#         data.append(row)
-#     w = np.array(data)
-
-# print(np.shape(w))
-# print(np.size(w,1))
+b = [i[0] for i in a]
+print(a)
+print(b)

@@ -1,6 +1,7 @@
 import numpy as np
 import csv
 from math import cos, sin, atan2
+import matplotlib.pyplot as plt
 
 class PoseGraph():
 
@@ -144,7 +145,7 @@ class PoseGraph():
         self.linearize_err_fcn()
 
         print("Solve the linear system...")
-        self.solve_lin_sys()
+        # self.solve_lin_sys()
             
         return
         
@@ -387,4 +388,10 @@ if __name__ == "__main__":
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
     a.optimize()
-    print(np.shape(a.node))
+
+    
+    x = [i[1] for i in a.node]
+    y = [i[2] for i in a.node]
+    plt.figure()
+    plt.plot(x, y)
+    plt.show()

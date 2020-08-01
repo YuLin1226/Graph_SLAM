@@ -27,5 +27,5 @@ figure()
 pg = PoseGraph();
 pg.readGraph(vfile, efile);
 % Do 5 iteration with visualization
-pg.optimize(10, true);
+pg.optimize(1, true);
 
