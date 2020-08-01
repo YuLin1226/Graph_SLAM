@@ -398,7 +398,7 @@ if __name__ == "__main__":
     node_set, edge_set = read_graph_csv()
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
-    a.optimize(1)
+    a.optimize(3)
 
 
     # b = [i[0] for i in a.node]
@@ -407,6 +407,8 @@ if __name__ == "__main__":
 
     # print(a.node[0])
     plt.figure()
-    plt.plot(x, y)
-    # plt.scatter(x, y, s=2)
+    plt.xlim((-250, 50))
+    plt.ylim((-100, 150))
+    # plt.plot(x, y)
+    plt.scatter(x, y, s=2)
     plt.show()

@@ -22,12 +22,12 @@ efid = fopen(efile);
             end
             edges = fscanf(efid,...
                 'EDGE2 %d %d %f %f %f %f %f %f %f %f %f \n',[11 Inf]);
-figure()
-plot(vertices(2,:), vertices(3,:))
+% figure()
+% plot(vertices(2,:), vertices(3,:))
 %% 
 figure()
 pg = PoseGraph();
 pg.readGraph(vfile, efile);
 % Do 5 iteration with visualization
-pg.optimize(1, true);
+pg.optimize(3, true);
 
