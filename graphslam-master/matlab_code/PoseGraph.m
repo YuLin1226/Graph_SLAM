@@ -180,6 +180,7 @@ classdef PoseGraph < handle
                 obj.node(i_node).pose = obj.node(i_node).pose ...
                     + dpose(:,i_node);
             end
+            obj.H(1:3,1:3) = obj.H(1:3,1:3) - eye(3);
         end
         
         function n_node = get.n_node(obj)

@@ -121,11 +121,20 @@ class PoseGraph():
         Implement optimization to find a best solution for the graph.
         Optimization will stop when maximal iteration is reached.
         '''
-        for i in range(num_iteration):
-            print("No. %d iteration of optimization ..." %(i+1))
-            self.iterate_graph_slam()
+        if num_iteration > 0:
+            for i in range(num_iteration):
+                print("No. %d iteration of optimization ..." %(i+1))
+                self.iterate_graph_slam()
+                print("No. %d iteration of optimization finished" %(i+1))
+                print("=========================================")
+            return  
 
-        return  
+        elif num_iteration < 0:
+            print("Iteration Setting Error.")
+            return
+        else:
+            print("No Iteration Process.")
+            return
 
     def iterate_graph_slam(self):
         
@@ -136,17 +145,17 @@ class PoseGraph():
         b : 3n x 1  matrix
         '''
 
-        print("Iteration...")
+        print("Iteration ...")
         
         # Create zero constructors of H and b 
         self.H = np.zeros( (3*self.length_node  , 3*self.length_node) )
         self.b = np.zeros( (3*self.length_node  , 1) )
 
-        print("Linearization...")
+        print("Linearization ...")
         self.linearize_err_fcn()
 
-        print("Solve the linear system...")
-        # self.solve_lin_sys()
+        print("Solve the linear system ...")
+        self.solve_lin_sys()
             
         return
         
@@ -187,7 +196,7 @@ class PoseGraph():
 
             # Construct transformation from node to global frame
             T_i = self.v2t(v_i)
-            T_j = self.v2t(v_i)
+            T_j = self.v2t(v_j)
 
             R_i = T_i[0:2, 0:2]
             R_z = T_z[0:2, 0:2]
@@ -198,13 +207,13 @@ class PoseGraph():
             dR_i = np.array([
                 [-si,  ci],
                 [-ci, -si]
-            ])
+            ]).transpose()
             dt_ij = v_j[0:2] - v_i[0:2]
 
             # Calculation of Jacobians
             # A: 3x3
             # B: 3x3
-            A = np.hstack([ np.dot( -R_z.transpose(), R_i.transpose() ) , np.dot( np.dot( R_z.transpose(), dR_i ), dt_ij ) ])
+            A = np.hstack([ np.dot( -R_z.transpose(), R_i.transpose() ) , np.dot( np.dot( R_z.transpose(), dR_i.transpose() ), dt_ij ) ])
             A = np.vstack([ A, np.array([0,0,-1]) ])
 
             B = np.hstack([ np.dot( R_z.transpose(), R_i.transpose() ), np.array([[0],[0]]) ])
@@ -255,8 +264,9 @@ class PoseGraph():
         dx(1:3,1) = 0
         which is equivalent to the following
         '''
-        self.H[0:3, 0:3] = self.H[0:3, 0:3] + np.eye(3)
-        dx = np.linalg.inv(self.H).dot(self.b)
+        H = self.H
+        H[0:3, 0:3] = H[0:3, 0:3] + np.eye(3)
+        dx = np.linalg.inv(H).dot(self.b)
         dpose = np.reshape(dx, (3, self.length_node))
         for i_node in range(self.length_node):
             for n in range(len(dpose)):
@@ -388,14 +398,15 @@ if __name__ == "__main__":
     node_set, edge_set = read_graph_csv()
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
-    a.optimize()
+    a.optimize(1)
 
 
-    b = [i[0] for i in a.node]
+    # b = [i[0] for i in a.node]
     x = [i[1] for i in a.node]
     y = [i[2] for i in a.node]
 
-    print(a.node[0])
-    # plt.figure()
+    # print(a.node[0])
+    plt.figure()
+    plt.plot(x, y)
     # plt.scatter(x, y, s=2)
-    # plt.show()
+    plt.show()

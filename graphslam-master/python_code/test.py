@@ -51,10 +51,22 @@ b = [i[0] for i in a]
 # print(a[0][2][1])
 # print(b)
 
+node = []
+for i in range(10):
+    node.append([
+        i,
+        i*2,
+        i*3,
+        i*4
+    ])
 
-x = np.array([
-    [1,2,3],
-    [4,5,6],
-    [7,8,9]
+dpose = np.array([
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1]
 ])
-print(t2v(x))
+for i_node in range(10):
+    for n in range(len(dpose)):
+        node[i_node][n+1] = node[i_node][n+1] + dpose[n, i_node]
+
+print(node)
