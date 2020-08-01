@@ -23,7 +23,7 @@ efid = fopen(efile);
             edges = fscanf(efid,...
                 'EDGE2 %d %d %f %f %f %f %f %f %f %f %f \n',[11 Inf]);
 figure()
-plot(vertices(2,:), vertices(3,:))
+plot(vertices(1,:))
 %% 
 figure()
 pg = PoseGraph();

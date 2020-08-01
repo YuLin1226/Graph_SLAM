@@ -81,7 +81,7 @@ class PoseGraph():
            [5~10]:    infm (list)
         '''
         # put in node data.
-
+        # node -> list[list1, list2, list3, ..., listN]
         for i_node in range(np.size(node_set, 1)):
             self.node.append([
                 int(node_set[0, i_node]),
@@ -100,6 +100,7 @@ class PoseGraph():
         #     ]) 
 
         # put in edge data
+        # edge -> list[list1, list2, list3, ..., listN]
         for i_edge in range(np.size(edge_set, 1)):
             self.edge.append([
                 int(edge_set[0, i_edge]),
@@ -173,14 +174,14 @@ class PoseGraph():
             # v_i: pose of node i : x, y, yaw
             # v_j: pose of node j : x, y, yaw
             v_i = np.array([
-                [self.node[i_node][0]],
-                [self.node[i_node][1]],
-                [self.node[i_node][2]] 
+                [ self.node[i_node][1] ],
+                [ self.node[i_node][2] ],
+                [ self.node[i_node][3] ] 
             ])
             v_j = np.array([
-                [self.node[j_node][0]],
-                [self.node[j_node][1]],
-                [self.node[j_node][2]]
+                [ self.node[j_node][1] ],
+                [ self.node[j_node][2] ],
+                [ self.node[j_node][3] ]
             ])
             
 
@@ -389,9 +390,12 @@ if __name__ == "__main__":
     a.create_zero_constructor(node_set, edge_set)
     a.optimize()
 
-    
+
+    b = [i[0] for i in a.node]
     x = [i[1] for i in a.node]
     y = [i[2] for i in a.node]
-    plt.figure()
-    plt.plot(x, y)
-    plt.show()
+
+    print(a.node[0])
+    # plt.figure()
+    # plt.scatter(x, y, s=2)
+    # plt.show()

@@ -43,10 +43,18 @@ for i in range(5):
     a.append([
                 int(i),
                 float(i+1),
-                float(i+2),
+                np.array([1,2,3]),
                 float(i+3)
             ])
 
 b = [i[0] for i in a]
-print(a)
-print(b)
+# print(a[0][2][1])
+# print(b)
+
+
+x = np.array([
+    [1,2,3],
+    [4,5,6],
+    [7,8,9]
+])
+print(t2v(x))
