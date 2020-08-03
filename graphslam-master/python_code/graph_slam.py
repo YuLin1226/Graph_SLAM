@@ -146,10 +146,6 @@ class PoseGraph():
         '''
 
         print("Iteration ...")
-        
-        # Create zero constructors of H and b 
-        self.H = np.zeros( (3*self.length_node  , 3*self.length_node) )
-        self.b = np.zeros( (3*self.length_node  , 1) )
 
         print("Linearization ...")
         self.linearize_err_fcn()
@@ -164,7 +160,12 @@ class PoseGraph():
         '''(Done)
         Linearize error functions and formulate a linear system
         '''
-        
+
+        # Create zero constructors of H and b 
+        self.H = np.zeros( (3*self.length_node  , 3*self.length_node) )
+        self.b = np.zeros( (3*self.length_node  , 1) )
+
+
         for i_edge in range( self.length_edge ):
             # No. i constraint
             ei = self.edge[i_edge]
@@ -173,7 +174,7 @@ class PoseGraph():
             # j_node: id_to
             i_node  = ei[0]
             j_node  = ei[1]
-
+            
             # T_z: Transformation Matrix
             T_z = self.v2t(ei[2])
 
@@ -230,7 +231,6 @@ class PoseGraph():
             # b_j:  3x1
             H_ii =  A.transpose().dot(omega).dot(A)
             H_ij =  A.transpose().dot(omega).dot(B)
-            H_ji =  H_ij.transpose()
             H_jj =  B.transpose().dot(omega).dot(B)
             b_i  =  -A.transpose().dot(omega).dot(e)
             b_j  =  -B.transpose().dot(omega).dot(e)
@@ -245,11 +245,12 @@ class PoseGraph():
             # Update H and b matrix
             self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] = self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] + H_ii
             self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] = self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] + H_ij
-            self.H[j_ind_start : j_ind_end , i_ind_start : i_ind_end] = self.H[j_ind_start : j_ind_end , i_ind_start : i_ind_end] + H_ji
+            self.H[j_ind_start : j_ind_end , i_ind_start : i_ind_end] = self.H[j_ind_start : j_ind_end , i_ind_start : i_ind_end] + H_ij.transpose()
             self.H[j_ind_start : j_ind_end , j_ind_start : j_ind_end] = self.H[j_ind_start : j_ind_end , j_ind_start : j_ind_end] + H_jj
             
             self.b[i_ind_start : i_ind_end] = self.b[i_ind_start : i_ind_end] + b_i
             self.b[j_ind_start : j_ind_end] = self.b[j_ind_start : j_ind_end] + b_j
+          
 
         return
 
@@ -266,8 +267,11 @@ class PoseGraph():
         '''
         H = self.H
         H[0:3, 0:3] = H[0:3, 0:3] + np.eye(3)
-        dx = np.linalg.inv(H).dot(self.b)
+
+        dx = (np.linalg.inv(H)).dot(self.b)
+
         dpose = np.reshape(dx, (3, self.length_node))
+        print(dpose)
         for i_node in range(self.length_node):
             for n in range(len(dpose)):
                 self.node[i_node][n+1] = self.node[i_node][n+1] + dpose[n, i_node]
@@ -398,7 +402,7 @@ if __name__ == "__main__":
     node_set, edge_set = read_graph_csv()
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
-    a.optimize(3)
+    a.optimize(1)
 
 
     # b = [i[0] for i in a.node]

@@ -158,6 +158,7 @@ classdef PoseGraph < handle
                 obj.H(j_ind,j_ind) = obj.H(j_ind,j_ind) + H_jj;
                 obj.b(i_ind) = obj.b(i_ind) + b_i;
                 obj.b(j_ind) = obj.b(j_ind) + b_j;
+                
             end
         end
 
@@ -171,9 +172,10 @@ classdef PoseGraph < handle
             % dx(1:3,1) = 0
             % which is equivalent to the following
             obj.H(1:3,1:3) = obj.H(1:3,1:3) + eye(3);
+            
             H_sparse = sparse(obj.H);
             dx = H_sparse \ obj.b;
-            dpose = reshape(dx, 3, obj.n_node);
+            dpose = reshape(dx, 3, obj.n_node)
             
             % Update node with solution
             for i_node = 1:obj.n_node
