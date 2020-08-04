@@ -63,10 +63,14 @@ for i in range(10):
 dpose = np.array([
     [1,1,1,1,1,1,1,1,1,1],
     [2,1,1,1,1,1,1,1,1,1],
+    [3,1,1,1,1,1,1,1,1,1],
+    [2,1,1,1,1,1,1,1,1,1],
+    [3,1,1,10,15,19,1,1,1,1],
+    [2,1,1,1,1,1,1,1,1,1],
     [3,1,1,1,1,1,1,1,1,1]
 ])
-for i_node in range(10):
-    for n in range(len(dpose)):
-        node[i_node][n+1] = node[i_node][n+1] + dpose[n, i_node]
+# for i_node in range(10):
+#     for n in range(len(dpose)):
+#         node[i_node][n+1] = node[i_node][n+1] + dpose[n, i_node]
 
-print(node)
+print(dpose[3:6,3:6])

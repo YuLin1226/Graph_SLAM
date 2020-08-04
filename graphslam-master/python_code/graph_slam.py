@@ -2,6 +2,8 @@ import numpy as np
 import csv
 from math import cos, sin, atan2
 import matplotlib.pyplot as plt
+from scipy import sparse
+from scipy.sparse.linalg import inv, spsolve
 
 class PoseGraph():
 
@@ -267,11 +269,12 @@ class PoseGraph():
         '''
         H = self.H
         H[0:3, 0:3] = H[0:3, 0:3] + np.eye(3)
-
-        dx = (np.linalg.inv(H)).dot(self.b)
-
+        H_sparse = sparse.csc_matrix(H)
+        # H_mat = np.asmatrix(H, dtype=float)
+        # dx = (np.linalg.inv(H)).dot(self.b)
+        # dx = np.linalg.solve(H, self.b)
+        dx = spsolve(H_sparse, self.b)
         dpose = np.reshape(dx, (3, self.length_node))
-        print(dpose)
         for i_node in range(self.length_node):
             for n in range(len(dpose)):
                 self.node[i_node][n+1] = self.node[i_node][n+1] + dpose[n, i_node]
@@ -402,7 +405,7 @@ if __name__ == "__main__":
     node_set, edge_set = read_graph_csv()
     a = PoseGraph()
     a.create_zero_constructor(node_set, edge_set)
-    a.optimize(1)
+    a.optimize(3)
 
 
     # b = [i[0] for i in a.node]

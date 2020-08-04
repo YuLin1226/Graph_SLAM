@@ -25,7 +25,7 @@ classdef PoseNode < handle
             % Plot all pose nodes position
             x = [obj.x];
             y = [obj.y];
-            plot(x, y, 'b');
+            plot(x, y, 'b.');
         end
         
         function x = get.x(obj)
