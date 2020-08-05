@@ -37,40 +37,28 @@ def v2t(vector):
     ])
     return T
 
-a = []
-
-for i in range(5):
-    a.append([
-                int(i),
-                float(i+1),
-                np.array([1,2,3]),
-                float(i+3)
-            ])
-
-b = [i[0] for i in a]
-# print(a[0][2][1])
-# print(b)
 
 node = []
 for i in range(10):
     node.append([
         i,
-        i*2,
-        i*3,
+        1,
+        5,
         i*4
     ])
 
 dpose = np.array([
-    [1,1,1,1,1,1,1,1,1,1],
-    [2,1,1,1,1,1,1,1,1,1],
-    [3,1,1,1,1,1,1,1,1,1],
-    [2,1,1,1,1,1,1,1,1,1],
-    [3,1,1,10,15,19,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,9],
     [2,1,1,1,1,1,1,1,1,1],
     [3,1,1,1,1,1,1,1,1,1]
 ])
-# for i_node in range(10):
-#     for n in range(len(dpose)):
-#         node[i_node][n+1] = node[i_node][n+1] + dpose[n, i_node]
+for i_node in range(10):
+    for n in range(len(dpose)):
+        node[i_node][n+1] = node[i_node][n+1] + dpose[n, i_node]
 
-print(dpose[3:6,3:6])
+
+x = [i[1] for i in node]
+y = [i[2] for i in node]
+
+print(x)
+print(y)

@@ -92,7 +92,7 @@ class PoseGraph():
                 float(node_set[3, i_node])
             ])
 
-
+        
         # -- The element of node[4,:] seems not being used.
         # for i in range(np.size(node_set,1)):
         #     self.node[4,i] = np.array([
@@ -117,7 +117,7 @@ class PoseGraph():
 
         return
 
-    def optimize(self, num_iteration=1):
+    def optimize(self, num_iteration=5):
 
         '''(Done)
         Implement optimization to find a best solution for the graph.
@@ -210,12 +210,14 @@ class PoseGraph():
             dR_i = np.array([
                 [-si,  ci],
                 [-ci, -si]
-            ]).transpose()
+                            ]).transpose()
+            
             dt_ij = v_j[0:2] - v_i[0:2]
 
             # Calculation of Jacobians
             # A: 3x3
             # B: 3x3
+
             A = np.hstack([ np.dot( -R_z.transpose(), R_i.transpose() ) , np.dot( np.dot( R_z.transpose(), dR_i.transpose() ), dt_ij ) ])
             A = np.vstack([ A, np.array([0,0,-1]) ])
 
@@ -240,10 +242,7 @@ class PoseGraph():
             # Index of updated data 
             i_ind_start, i_ind_end = self.id2ind(i_node)
             j_ind_start, j_ind_end = self.id2ind(j_node)
-            # print("---------------------")
-            # print(i_ind_start, i_ind_end)
-            # print(j_ind_start, j_ind_end)
-            # print("---------------------")
+            
             # Update H and b matrix
             self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] = self.H[i_ind_start : i_ind_end , i_ind_start : i_ind_end] + H_ii
             self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] = self.H[i_ind_start : i_ind_end , j_ind_start : j_ind_end] + H_ij
@@ -253,13 +252,12 @@ class PoseGraph():
             self.b[i_ind_start : i_ind_end] = self.b[i_ind_start : i_ind_end] + b_i
             self.b[j_ind_start : j_ind_end] = self.b[j_ind_start : j_ind_end] + b_j
           
-
         return
 
     def solve_lin_sys(self):
         
         '''(Done)
-        Solves the linear system and update all pose node.
+        Solves the linear system and update all pose nodes.
         The system Hx = b is obtained only from relative constraints.
         H is not full rank.
         We solve this by anchoring the position of the 1st vertex
@@ -267,19 +265,17 @@ class PoseGraph():
         dx(1:3,1) = 0
         which is equivalent to the following
         '''
-        H = self.H
-        H[0:3, 0:3] = H[0:3, 0:3] + np.eye(3)
-        H_sparse = sparse.csc_matrix(H)
-        # H_mat = np.asmatrix(H, dtype=float)
-        # dx = (np.linalg.inv(H)).dot(self.b)
-        # dx = np.linalg.solve(H, self.b)
+        
+        self.H[0:3, 0:3] = self.H[0:3, 0:3] + np.eye(3)
+        H_sparse = sparse.csc_matrix(self.H)
         dx = spsolve(H_sparse, self.b)
-        dpose = np.reshape(dx, (3, self.length_node))
+        dpose = np.reshape(dx, (3, self.length_node), order='F')
+        
+
         for i_node in range(self.length_node):
             for n in range(len(dpose)):
                 self.node[i_node][n+1] = self.node[i_node][n+1] + dpose[n, i_node]
 
-        
         return
 
     def v2t(self, vector):
@@ -309,9 +305,6 @@ class PoseGraph():
         '''(Done)
         Converts id to indices in H and b
         '''
-        # ind_start = 3*id - 2
-        # ind_end   = 3*id + 1
-        
         ind_start = 3*id
         ind_end   = 3*id + 3
         return ind_start, ind_end
@@ -408,11 +401,10 @@ if __name__ == "__main__":
     a.optimize(3)
 
 
-    # b = [i[0] for i in a.node]
     x = [i[1] for i in a.node]
     y = [i[2] for i in a.node]
 
-    # print(a.node[0])
+    print(a.node[0])
     plt.figure()
     plt.xlim((-250, 50))
     plt.ylim((-100, 150))

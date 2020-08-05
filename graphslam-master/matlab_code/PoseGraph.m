@@ -172,11 +172,10 @@ classdef PoseGraph < handle
             % dx(1:3,1) = 0
             % which is equivalent to the following
             obj.H(1:3,1:3) = obj.H(1:3,1:3) + eye(3);
-            H = obj.H(51:58 ,51:58)
+            
             H_sparse = sparse(obj.H);
             dx = H_sparse \ obj.b;
             dpose = reshape(dx, 3, obj.n_node);
-            
             % Update node with solution
             for i_node = 1:obj.n_node
                 obj.node(i_node).pose = obj.node(i_node).pose ...
