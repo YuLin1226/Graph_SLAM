@@ -26,7 +26,11 @@ class PoseGraph():
             * H    : Information matrix
             * b    : Information vector
         '''
-        pass
+        
+        # self.fig, self.ax = plt.subplots()
+        plt.ion()
+        # plt.show()
+
         return
         
 
@@ -129,6 +133,19 @@ class PoseGraph():
                 self.iterate_graph_slam()
                 print("No. %d iteration of optimization finished" %(i+1))
                 print("=========================================")
+
+                # plt plot
+                x = [i[1] for i in self.node]
+                y = [i[2] for i in self.node]
+                # plt.figure()
+                plt.cla()  
+                plt.xlim((-250, 50))
+                plt.ylim((-100, 150))
+                plt.scatter(x, y, s=2)
+                plt.pause(0.1)
+            plt.ioff()
+            plt.show()
+
             return  
 
         elif num_iteration < 0:
@@ -342,6 +359,8 @@ def read_graph_csv(csv_file_node='node.csv', csv_file_edge='edge.csv'):
     
     return node_set, edge_set
 
+
+
 # class PoseNode():
     
 #     def __init__(self, x, y, yaw, rt):
@@ -401,13 +420,13 @@ if __name__ == "__main__":
     a.optimize(3)
 
 
-    x = [i[1] for i in a.node]
-    y = [i[2] for i in a.node]
+    # x = [i[1] for i in a.node]
+    # y = [i[2] for i in a.node]
 
-    print(a.node[0])
-    plt.figure()
-    plt.xlim((-250, 50))
-    plt.ylim((-100, 150))
-    # plt.plot(x, y)
-    plt.scatter(x, y, s=2)
-    plt.show()
+    # print(a.node[0])
+    # plt.figure()
+    # plt.xlim((-250, 50))
+    # plt.ylim((-100, 150))
+    # # plt.plot(x, y)
+    # plt.scatter(x, y, s=2)
+    # plt.show()
